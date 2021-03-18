@@ -1,0 +1,113 @@
+-- @nsURI MM=http://www.eclipse.org/uml2/5.0.0/UML
+-- @nsURI MM1=http://www.eclipse.org/uml2/5.0.0/UML
+
+query code_generator =
+	MMU!Class.allInstances()->forAll(c | c.code().writeTo(
+		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + c.package.name + '/' + c.name + '.java'))
+	;
+
+
+helper context MMU!Class def: code(): String =
+	self.packages() +
+	
+	self.header() +
+	self.classDef() +
+	
+	self.attributess() +
+	
+	self.noArgsConst() +
+	self.allArgsConst() +
+	
+	self.methods() +
+	
+	self.toStrings() +
+	
+	self.getters() +
+	self.setters() +
+	
+	self.footer()
+	;
+
+helper context MMU!Class def: header(): String =
+	'// ------------------------------------------\n' +
+	'//	tp					: TP1\n' +
+	'//	nom					: serrhini\n' +
+	'//	prenom				: abdelmonaim\n' +
+	'//	Date				: 12321\n' +
+	'// ------------------------------------------\n\n'
+	;
+
+-- todo
+helper context MMU!Class def: packages(): String =
+	'// packages'
+;
+
+helper context MMU!Class def: classDef(): String =
+	'class ' + self.name.capitalize() + ' {\n\n'
+;
+
+helper context MMU!Class def: footer(): String =
+	'\n} // fin de la class ' + self.name
+;
+	
+helper context MMU!Class def: attributess(): String =
+	self.ownedAttribute->iterate(
+		prop; acc: String = '\t// Le nomber des attributes est ' + self.ownedAttribute->size() + ' qui sont:\n' |
+			acc + '\t' + prop.visibility.name + ' ' + thisModule.convertType(prop.type) + ' ' + prop.name + ';\n')
+;
+
+-- todo
+helper context MMU!Class def: noArgsConst(): String =
+	'// no args constructor'
+;
+
+-- todo
+helper context MMU!Class def: allArgsConst(): String =
+	'// all args constructor'
+;
+
+-- todo
+helper context MMU!Class def: methods(): String =
+	'// methods'
+;
+
+-- todo
+helper context MMU!Class def: toStrings(): String =
+	'// to strings'
+;
+
+helper context MMU!Class def: getters(): String =
+	self.ownedAttribute->iterate(
+		prop; acc: String = '\n\t// getters:\n' |acc + if prop.visibility.name <> 'public' 
+			then '\tpublic ' + thisModule.convertType(prop.type) + ' ' + 'get' + prop.name.capitalize() + '() {\n' +
+				 '\t\treturn this.' + prop.name + '\n' +
+				 '\t}\n'
+			else '' endif
+	)
+;
+
+helper context MMU!Class def: setters(): String =
+	self.ownedAttribute->iterate(prop; acc: String = '\n\t// setters:\n' | acc + if prop.visibility.name <> 'public'
+	then '\tpublic void set' + prop.name.capitalize() + '(' + thisModule.convertType(prop.type) + ' ' + prop.name + ') {\n' +
+		 '\t\tthis.' + prop.name + ' = ' + prop.name + '\n' +
+		 '\t}\n'
+	else '' endif
+	)
+;
+
+helper def: convertType(type: OclAny): String =
+	if type.oclIsUndefined() then 'Object'
+	else if type.name = 'Real' then 'double'
+		 else if type.name = 'Boolean' then 'boolean'
+			  else if type.name = 'Integer' then 'int'
+			  	   else type.name
+				   endif
+			  endif
+		 endif
+	endif
+;
+
+
+helper context String def: capitalize(): String =
+	self.substring(1, 1).toUpper() + self.substring(2, self.size())
+;
