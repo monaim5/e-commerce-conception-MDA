@@ -7,20 +7,12 @@
 -- Associations p239
 
 query code_generator =
+	let srcPath: String = 'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' in
 	MMU!Class.allInstances().union(MMU!Enumeration.allInstances())->forAll(c | 
 		c.code().writeTo(
-		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + c.package.path() + '/' + c.name + '.java'))
+		srcPath + c.package.path() + '/' + c.name + '.java'))
 	;
 
---query generateEnums =
---	MMU!Enumeration.allInstances()->forAll(e |
---		'hello'.writeTo(
---		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + e.package.path() + '/' + e.name + '.java'))
---	MMU!Class.allInstances()->forAll(c | 
---		c.code().writeTo(
---		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + c.package.path() + '/' + c.name + '.java'))
---		
---	;
 
 helper context MMU!Type def: code(): String =
 	self.header() +
@@ -29,7 +21,7 @@ helper context MMU!Type def: code(): String =
 	self.importDependencies() +
 	self.classDef() +
 	
-	self.attributess() +
+	self.attributes() +
 
 	self.footer()
 	;
@@ -120,7 +112,7 @@ helper context MMU!Type def: classDef(): String =
 		 then thisModule.entityAnnotations()
 		 else if self.isAbstractEntity() then thisModule.AbstractEntityAnnotations() else '' endif
 		 endif +
-		 'class ' + self.name.capitalize() +
+		 'public class ' + self.name.capitalize() +
 		 if self.superClass.size() > 0 then ' extends ' + self.superClass.at(1).name else '' endif + ' {\n\n'
 	else if self.isEnum() then 'public enum ' + self.name.capitalize() + ' {\n\n' else '' endif
 	endif
@@ -155,7 +147,7 @@ helper context MMU!Type def: isAbstractEntity(): Boolean =
 	self.name = 'AbstractEntity'
 	;
 	
-helper context MMU!Type def: attributess(): String =
+helper context MMU!Type def: attributes(): String =
 	if self.isClass() 
 	then self.ownedAttribute->iterate(
 		prop; acc: String = '' |

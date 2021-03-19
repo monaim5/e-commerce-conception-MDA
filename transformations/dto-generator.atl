@@ -1,0 +1,130 @@
+
+query generateDto =
+	let srcPath: String = 'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' in
+	let entitiesPackage: String = 'entities' in
+	let dtosPackage: String = 'dtos' in
+	
+	MMU!Package.allInstances()->select(p | p.name = entitiesPackage).at(1).ownedType->forAll(c | 
+		c.code().writeTo(
+		srcPath + c.package.path().parent() + '/' + dtosPackage + '/' + c.name + 'Dto.java'))
+	;
+
+helper context MMU!Type def: code(): String =
+	self.header() +
+	
+	self.importPackage() +
+	self.importDependencies() +
+	self.classDef() +
+	
+	self.attributes() +
+
+	self.footer()
+	;
+
+helper context MMU!Type def: header(): String =
+	'/**\n' +
+	' * This class has genearate by ecommerce-mda\n' +
+	' * Author: monaim\n' +
+	' */\n\n'
+	;
+
+
+helper context MMU!Type def: importPackage(): String =
+	'package ' + self.package.getFullPackage().parent() + '.dtos' + ';\n\n'
+	;
+
+helper context MMU!Package def: getFullPackage(): String =
+	if self.nestingPackage.oclIsUndefined()
+	then '' 
+	else if self.nestedPackage.size() = 0
+		 then self.nestingPackage.getFullPackage() + self.name
+		 else self.nestingPackage.getFullPackage() + self.name + '.'
+		 endif
+	endif
+	;
+
+helper context MMU!Property def: toCode(): String =
+	'\t' + self.visibility.name + ' ' + thisModule.getPropType(self) + ' ' + self.name
+	;
+
+helper def: getPropType(prop: OclAny): String =
+	if prop.upper = 1
+	then thisModule.convertType(prop.type)
+	else 'List<' + thisModule.convertType(prop.type) + '>'
+	endif
+	;
+
+
+helper context MMU!Type def: attributes(): String =
+	if self.isClass() 
+	then self.ownedAttribute->iterate(
+		prop; acc: String = '' |
+			acc + prop.toCode() + ';\n')
+	else if self.isEnum() then self.ownedLiteral->iterate(l; acc: String='' | acc + l.toCode()) else '' endif
+	endif
+;
+
+helper context MMU!Type def: footer(): String =
+	'\n}'
+;
+	
+helper context MMU!Type def: importDependencies(): String =
+	'import lombok.Data;\n' +
+	'import lombok.AllArgsConstructor;\n' +
+	'import lombok.NoArgsConstructor;\n' +
+	'import lombok.Builder;\n' +
+	'import java.util.List;\n\n'
+	;
+
+helper context MMU!Type def: classDef(): String =
+	if self.isClass()
+	then thisModule.dtoAnnotations() + 'public class ' + self.name.capitalize() + 'Dto {\n\n'
+	else ''
+	endif
+	;
+
+helper def: dtoAnnotations(): String =
+	'\n@Data\n' +
+	'@AllArgsConstructor\n' +
+	'@NoArgsConstructor\n' +
+	'@Builder\n'
+	;
+	
+helper context MMU!Type def: isClass(): Boolean =
+	self.oclType().name = 'Class'
+	;
+
+helper context MMU!Package def: path(): String =
+	self.getFullPackage().replaceAll('.', '/')
+	;
+
+helper context String def: parent(): String =
+	if self.indexOf('.') = -1 
+	then self.substring(1, self.lastIndexOf('/'))
+	else self.substring(1, self.lastIndexOf('.'))
+	endif
+	;
+
+helper def: convertType(type: OclAny): String =
+	if type.oclIsUndefined() then 'Object'
+	else if type.name = 'Real' then 'float'
+		 else if type.name = 'Boolean' then 'boolean'
+			  else if type.name = 'Integer' then 'int'
+			  	   else if type.name = 'EBigInteger' then 'Long'
+			  			else if type.name = 'EDate' then 'Instant'
+							 else if type.package.name = 'entities'
+							 	  then type.name + 'Dto'
+								  else type.name
+								  endif
+				   			 endif
+						endif
+					endif
+			  endif
+		 endif
+	endif
+;
+
+
+helper context String def: capitalize(): String =
+	self.substring(1, 1).toUpper() + self.substring(2, self.size())
+;
