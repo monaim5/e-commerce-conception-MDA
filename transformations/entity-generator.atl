@@ -1,107 +1,220 @@
 -- @nsURI MM=http://www.eclipse.org/uml2/5.0.0/UML
 -- @nsURI MM1=http://www.eclipse.org/uml2/5.0.0/UML
+-- https://www.omg.org/spec/UML/2.5/PDF/
+-- class p139 p234
+-- package p281
+-- properties p151
+-- Associations p239
 
 query code_generator =
-	MMU!Class.allInstances()->forAll(c | c.code().writeTo(
-		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + c.package.name + '/' + c.name + '.java'))
+	MMU!Class.allInstances().union(MMU!Enumeration.allInstances())->forAll(c | 
+		c.code().writeTo(
+		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + c.package.path() + '/' + c.name + '.java'))
 	;
 
+--query generateEnums =
+--	MMU!Enumeration.allInstances()->forAll(e |
+--		'hello'.writeTo(
+--		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + e.package.path() + '/' + e.name + '.java'))
+--	MMU!Class.allInstances()->forAll(c | 
+--		c.code().writeTo(
+--		'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' + c.package.path() + '/' + c.name + '.java'))
+--		
+--	;
 
-helper context MMU!Class def: code(): String =
-	self.packages() +
-	
+helper context MMU!Type def: code(): String =
 	self.header() +
+	
+	self.importPackage() +
+	self.importDependencies() +
 	self.classDef() +
 	
 	self.attributess() +
-	
-	self.noArgsConst() +
-	self.allArgsConst() +
-	
-	self.methods() +
-	
-	self.toStrings() +
-	
-	self.getters() +
-	self.setters() +
-	
+
 	self.footer()
 	;
 
-helper context MMU!Class def: header(): String =
-	'// ------------------------------------------\n' +
-	'//	tp					: TP1\n' +
-	'//	nom					: serrhini\n' +
-	'//	prenom				: abdelmonaim\n' +
-	'//	Date				: 12321\n' +
-	'// ------------------------------------------\n\n'
+helper context MMU!Type def: header(): String =
+	'/**\n' +
+	' * This class has genearate by ecommerce-mda\n' +
+	' * Author: monaim\n' +
+	' */\n\n'
 	;
 
--- todo
-helper context MMU!Class def: packages(): String =
-	'// packages'
-;
+helper context MMU!Type def: importPackage(): String =
+	'package ' + self.package.getFullPackage() + ';\n\n'
+	;
 
-helper context MMU!Class def: classDef(): String =
-	'class ' + self.name.capitalize() + ' {\n\n'
-;
+helper context MMU!Package def: getFullPackage(): String =
+	if self.nestingPackage.oclIsUndefined()
+	then '' 
+	else if self.nestedPackage.size() = 0
+		 then self.nestingPackage.getFullPackage() + self.name
+		 else self.nestingPackage.getFullPackage() + self.name + '.'
+		 endif
+	endif
+	;
 
-helper context MMU!Class def: footer(): String =
-	'\n} // fin de la class ' + self.name
-;
+helper context MMU!Package def: path(): String =
+	self.getFullPackage().replaceAll('.', '/')
+	;
+
+helper def: importEntityDependencies(): String =
+	'import lombok.AllArgsConstructor;\n' +
+	'import lombok.Data;\n' +
+	'import lombok.NoArgsConstructor;\n\n' +
+	'import javax.persistence.*;\n' +
+	'import java.time.Instant;\n' +
+	'import java.util.List;\n\n'
+	;
+
+helper def: importAbstractEntityDependencies(): String =
+	'import lombok.Data;\n' +
+	'import java.time.Instant;\n' +
+	'import javax.persistence.Id;\n' +
+	'import javax.persistence.GeneratedValue;\n' +
+	'import javax.persistence.MappedSuperclass;\n' +
+	'import javax.persistence.GenerationType.IDENTITY;\n' +
+	'import org.springframework.data.annotation.CreatedDate;\n' +
+	'import org.springframework.data.annotation.LastModifiedDate;\n\n'
+	;
 	
-helper context MMU!Class def: attributess(): String =
-	self.ownedAttribute->iterate(
-		prop; acc: String = '\t// Le nomber des attributes est ' + self.ownedAttribute->size() + ' qui sont:\n' |
-			acc + '\t' + prop.visibility.name + ' ' + thisModule.convertType(prop.type) + ' ' + prop.name + ';\n')
-;
+helper def: entityAnnotations(): String =
+	'@Data\n' +
+	'@AllArgsConstructor\n' +
+	'@NoArgsConstructor\n' +
+	'@Entity\n'
+	;
 
--- todo
-helper context MMU!Class def: noArgsConst(): String =
-	'// no args constructor'
-;
+helper def: AbstractEntityAnnotations(): String =
+	'@Data\n@MappedSupperClass\n'
+	;
 
--- todo
-helper context MMU!Class def: allArgsConst(): String =
-	'// all args constructor'
-;
+helper context MMU!Type def: importDependencies(): String =
+	self.importSuperClassDep() +
+	if self.isEntity() then thisModule.importEntityDependencies()
+	else if self.isAbstractEntity() then thisModule.importAbstractEntityDependencies() else '' endif
+	endif 
+	-- todo import attributes types dependencies if is necessary
 
--- todo
-helper context MMU!Class def: methods(): String =
-	'// methods'
-;
+	;
 
--- todo
-helper context MMU!Class def: toStrings(): String =
-	'// to strings'
-;
-
-helper context MMU!Class def: getters(): String =
-	self.ownedAttribute->iterate(
-		prop; acc: String = '\n\t// getters:\n' |acc + if prop.visibility.name <> 'public' 
-			then '\tpublic ' + thisModule.convertType(prop.type) + ' ' + 'get' + prop.name.capitalize() + '() {\n' +
-				 '\t\treturn this.' + prop.name + '\n' +
-				 '\t}\n'
-			else '' endif
-	)
-;
-
-helper context MMU!Class def: setters(): String =
-	self.ownedAttribute->iterate(prop; acc: String = '\n\t// setters:\n' | acc + if prop.visibility.name <> 'public'
-	then '\tpublic void set' + prop.name.capitalize() + '(' + thisModule.convertType(prop.type) + ' ' + prop.name + ') {\n' +
-		 '\t\tthis.' + prop.name + ' = ' + prop.name + '\n' +
-		 '\t}\n'
+helper context MMU!Type def: importSuperClassDep(): String =
+	if self.oclType().name = 'Class' then
+		if self.superClass.size() > 0
+		then if self.package.ownedType.includes(self.superClass.at(1))
+			 then '' 
+			 else 'import ' + self.superClass.at(1).package.getFullPackage() + '.' + self.superClass.at(1).name + ';\n'
+			 endif
+		else '' endif
 	else '' endif
-	)
+	;
+
+helper context MMU!Type def: getSuperClass(): OclAny =
+	if self.superClass.size() > 0 then self.superClass else false endif
+	;
+	
+helper context MMU!Type def: classDef(): String =
+	if self.isClass()
+	then if self.isEntity()
+		 then thisModule.entityAnnotations()
+		 else if self.isAbstractEntity() then thisModule.AbstractEntityAnnotations() else '' endif
+		 endif +
+		 'class ' + self.name.capitalize() +
+		 if self.superClass.size() > 0 then ' extends ' + self.superClass.at(1).name else '' endif + ' {\n\n'
+	else if self.isEnum() then 'public enum ' + self.name.capitalize() + ' {\n\n' else '' endif
+	endif
+	;
+
+helper context MMU!Type def: isClass(): Boolean =
+	self.oclType().name = 'Class'
+	;
+
+helper context MMU!Type def: isEnum(): Boolean =
+	self.oclType().name = 'Enumeration'
+	;
+
+helper context MMU!Type def: footer(): String =
+	'\n}'
 ;
+
+helper context MMU!Type def: isEntity(): Boolean =
+	if self.oclType().name = 'Class' 
+	then if self.superClass.size() > 0
+		 then if self.superClass.at(1).name = 'AbstractEntity'
+			  then true
+			  else false
+			  endif
+		else false
+		endif 
+	else false
+	endif
+	;
+
+helper context MMU!Type def: isAbstractEntity(): Boolean =
+	self.name = 'AbstractEntity'
+	;
+	
+helper context MMU!Type def: attributess(): String =
+	if self.isClass() 
+	then self.ownedAttribute->iterate(
+		prop; acc: String = '' |
+			acc + prop.toCode() + ';\n')
+	else if self.isEnum() then self.ownedLiteral->iterate(l; acc: String='' | acc + l.toCode()) else '' endif
+	endif
+;
+
+helper context MMU!EnumerationLiteral def: toCode(): String =
+	'\t' + self.name + ',\n'
+	;
+
+helper context MMU!Property def: toCode(): String =
+	if self.class.isAbstractEntity()
+	then if self.name = 'id' then '\n\t@Id @GeneratedValue(strategy = IDENTITY)\n' else '' endif + 
+		 if self.name = 'creationDate' then '\n\t@CreationDate\n' else '' endif +
+		 if self.name = 'lastModifiedDate' then '\n\t@LastModifiedDate\n' else '' endif
+	else if  self.type.oclType().name = 'Class'
+		 then if self.type.isEntity()
+		     -- assert that class package includes that type
+		  	 then '\n\t' + self.addPersistenceAnnotation() + '\n'
+		  	 else ''
+		  	 endif
+		 else ''
+		 endif
+	endif +
+	'\t' + self.visibility.name + ' ' + thisModule.getPropType(self) + ' ' + self.name
+	;
+
+helper context MMU!Property def: addPersistenceAnnotation(): String =
+	let otherProp: Integer = self.association.memberEnd->any(p | p.type.name <> self.type.name)
+	in '@' +
+	if otherProp.upper = -1
+	then 'ManyTo' + if self.upper = -1
+				    then 'Many' 
+				    else 'One'
+				    endif
+	else 'OneTo' + if self.upper = -1
+				   then 'Many'
+				   else 'One'
+				   endif
+	endif
+	;
+
+helper def: getPropType(prop: OclAny): String =
+	if prop.upper = 1 then thisModule.convertType(prop.type) else 'List<' + thisModule.convertType(prop.type) + '>' endif
+	;
 
 helper def: convertType(type: OclAny): String =
 	if type.oclIsUndefined() then 'Object'
-	else if type.name = 'Real' then 'double'
+	else if type.name = 'Real' then 'float'
 		 else if type.name = 'Boolean' then 'boolean'
 			  else if type.name = 'Integer' then 'int'
-			  	   else type.name
-				   endif
+			  	   else if type.name = 'EBigInteger' then 'Long'
+			  			else if type.name = 'EDate' then 'Instant'
+							 else type.name
+				   			 endif
+						endif
+					endif
 			  endif
 		 endif
 	endif
