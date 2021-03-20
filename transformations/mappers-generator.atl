@@ -1,0 +1,164 @@
+-- U19670
+
+query generateDto =
+	let srcPath: String = 'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' in
+	let entitiesPackage: String = 'entities' in
+	let mappersPackage: String = 'mappers' in
+	MMU!Package.allInstances()->select(p | p.name = entitiesPackage).at(1).ownedType->forAll(c | 
+		c.code().writeTo(
+		srcPath + c.package.path().parent() + '/' + mappersPackage + '/' + c.name + 'Mapper.java'))
+	;
+
+helper context MMU!Type def: code(): String =
+	self.header() +
+	
+	self.importPackage() +
+	self.importDependencies() +
+	self.classDef() +
+	
+	self.methodes() +
+	self.footer()
+	;
+
+helper context MMU!Type def: header(): String =
+	'/**\n' +
+	' * This class has genearate by ecommerce-mda\n' +
+	' * Author: monaim\n' +
+	' */\n\n'
+	;
+
+helper context MMU!Type def: importPackage(): String =
+	'package ' + self.package.getFullPackage().parent() + '.mappers' + ';\n\n'
+	;
+
+helper context MMU!Package def: getFullPackage(): String =
+	if self.nestingPackage.oclIsUndefined()
+	then '' 
+	else if self.nestedPackage.size() = 0
+		 then self.nestingPackage.getFullPackage() + self.name
+		 else self.nestingPackage.getFullPackage() + self.name + '.'
+		 endif
+	endif
+	;
+
+helper context MMU!Type def: footer(): String =
+	'\n}'
+;
+	
+helper context MMU!Type def: importDependencies(): String =
+	self.importModels() +
+	'import org.mapstruct.Mapper;\n' +
+	'import org.mapstruct.Mapping;\n' +
+	'import org.mapstruct.IterableMapping;\n' +
+	'import java.util.List;\n\n'
+	;
+	
+helper context MMU!Type def: importModels(): String =
+	'import ' + self.package.getFullPackage() + '.' + self.name + ';\n' +
+	'import ' + self.package.getFullPackage().parent() + '.dtos.' + self.name + 'Dto;\n'
+	;
+
+helper context MMU!Type def: classDef(): String =
+	if self.isClass()
+	then self.mapperAnnotations() + 'public interface ' + self.name.capitalize() + 'Mapper {\n\n'
+	else ''
+	endif
+	;
+
+helper context MMU!Type def: mapperAnnotations(): String =
+	'\n@Mapper(componentModel = "spring", uses = {' +
+	 self.getNestedEntities()->iterate(p; acc: String = '' | acc + p.type.name + 'Mapper.class, ')+
+	 '})\n'
+	;
+
+helper context MMU!Type def: methodes(): String =
+	self.toEntityMethod() +
+	self.toDtoMethod() +
+	self.toFlatDtoMethod() +
+	self.toDtoListMethod()
+	;
+
+helper context MMU!Type def: toEntityMethod(): String =
+	self.name + ' toEntity(' + self.name + 'Dto ' + self.name.lowerFirst() + 'Dto);\n\n'
+	;
+
+helper context MMU!Type def: toFlatDtoMethod(): String =
+	'@Named("toFlat' + self.name + 'Dto")\n' +
+	self.getNestedEntities()->iterate(e; acc: String = '' | acc + '@Mapping(target = "' + e.name + '", ignore = true)\n') +
+	self.name + 'Dto toFlatDto(' + self.name + ' ' + self.name.lowerFirst() + ');\n\n'
+	;
+
+helper context MMU!Type def: toDtoMethod(): String =
+	self.getNestedEntities()->select(e | e.upper <> -1)->iterate(e; acc: String = '' |
+		acc + '@Mapping(target = "' + e.name + '", qualifiedByName = "toFlat' + e.type.name + 'Dto")\n') +
+	self.name + 'Dto toDto(' + self.name + ' ' + self.name.lowerFirst() + ');\n\n'
+	;
+
+helper context MMU!Type def: toDtoListMethod(): String =
+	'@IterableMapping(qualifiedByName = "toFlat' + self.name + 'Dto' + '")\n' +
+	'List<' + self.name + 'Dto> toDtoList(' + self.name + ' ' + self.name.lowerFirst() + ');\n\n'
+	;
+
+
+helper context MMU!Type def: getNestedEntities(): Set(OclAny) =
+	self.ownedAttribute->select(p | thisModule.isEntity(p.type))
+	;
+
+helper def: isEntity(p: OclAny): Boolean =
+	if p.oclType().name = 'Class' 
+	then if p.superClass.size() > 0
+		 then if p.superClass.at(1).name = 'AbstractEntity'
+			  then true
+			  else false
+			  endif
+		else false
+		endif 
+	else false
+	endif
+	;
+
+helper context MMU!Type def: isClass(): Boolean =
+	self.oclType().name = 'Class'
+	;
+
+helper context MMU!Package def: path(): String =
+	self.getFullPackage().replaceAll('.', '/')
+	;
+
+helper context String def: parent(): String =
+	if self.indexOf('.') = -1 
+	then self.substring(1, self.lastIndexOf('/'))
+	else self.substring(1, self.lastIndexOf('.'))
+	endif
+	;
+
+helper def: convertType(type: OclAny): String =
+	if type.oclIsUndefined() then 'Object'
+	else if type.name = 'Real' then 'float'
+		 else if type.name = 'Boolean' then 'boolean'
+			  else if type.name = 'Integer' then 'int'
+			  	   else if type.name = 'EBigInteger' then 'Long'
+			  			else if type.name = 'EDate' then 'Instant'
+							 else if type.package.name = 'entities'
+							 	  then type.name + 'Dto'
+								  else type.name
+								  endif
+				   			 endif
+						endif
+					endif
+			  endif
+		 endif
+	endif
+;
+
+
+helper context String def: capitalize(): String =
+	self.substring(1, 1).toUpper() + self.substring(2, self.size())
+;
+
+helper context String def: lowerFirst(): String =
+	self.substring(1, 1).toLower() + self.substring(2, self.size())
+	;
+
+
+
