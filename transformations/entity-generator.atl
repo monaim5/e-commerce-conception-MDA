@@ -55,7 +55,9 @@ helper def: importEntityDependencies(): String =
 	'import lombok.AllArgsConstructor;\n' +
 	'import lombok.Data;\n' +
 	'import lombok.NoArgsConstructor;\n\n' +
-	'import javax.persistence.*;\n' +
+	'import javax.persistence.OneToMany;\n' +
+	'import javax.persistence.ManyToOne;\n' +
+	'import javax.persistence.OneToOne;\n' +
 	'import java.time.Instant;\n' +
 	'import java.util.List;\n\n'
 	;

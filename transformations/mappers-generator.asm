@@ -188,7 +188,7 @@
 		<constant value="import "/>
 		<constant value=";&#10;"/>
 		<constant value=".dtos."/>
-		<constant value="Dto;&#10;"/>
+		<constant value="Dto;&#10;&#10;"/>
 		<constant value="57:2-57:11"/>
 		<constant value="57:14-57:18"/>
 		<constant value="57:14-57:26"/>
@@ -213,8 +213,8 @@
 		<constant value="58:66-58:70"/>
 		<constant value="58:66-58:75"/>
 		<constant value="57:2-58:75"/>
-		<constant value="58:78-58:86"/>
-		<constant value="57:2-58:86"/>
+		<constant value="58:78-58:88"/>
+		<constant value="57:2-58:88"/>
 		<constant value="classDef"/>
 		<constant value="J.isClass():J"/>
 		<constant value="5"/>

@@ -1,0 +1,79 @@
+query generateRepositories =
+	let srcPath: String = 'C:/Users/mon/eclipse-workspace1/TP1/generatedmodels/src/' in
+	let abstractEntity: String = 'AbstractEntity' in
+	let repoPackage: String = 'repositories' in
+	MMU!Class.allInstances()->select(c | c.isEntity())->forAll(c | 
+		c.code().writeTo(
+		srcPath + c.package.path().parent().parent() + '/' + repoPackage + '/' + c.name + 'Repository.java'))
+	;
+
+helper context MMU!Type def: code(): String =
+	self.header() +
+	
+	self.importPackage() +
+	self.importDependencies() +
+	self.classDef() +
+
+	self.footer()
+	;
+
+helper context MMU!Type def: header(): String =
+	'/**\n' +
+	' * This class has genearate by ecommerce-mda\n' +
+	' * Author: monaim\n' +
+	' */\n\n'
+	;
+
+helper context MMU!Type def: classDef(): String =
+	'public interface ' + self.name + 
+	'Repository extends JpaRepository<' + self.name + ', Long> {'
+	;
+
+helper context MMU!Type def: footer(): String =
+	'\n}'
+;
+	
+helper context MMU!Type def: isEntity(): Boolean =
+	if self.oclType().name = 'Class' 
+	then if self.superClass.size() > 0
+		 then if self.superClass.at(1).name = 'AbstractEntity'
+			  then true
+			  else false
+			  endif
+		else false
+		endif 
+	else false
+	endif
+	;
+
+
+helper context MMU!Type def: importPackage(): String =
+	'package ' + self.package.getFullPackage().parent().parent() + '.repositories' + ';\n\n'
+	;
+
+helper context MMU!Package def: getFullPackage(): String =
+	if self.nestingPackage.oclIsUndefined()
+	then '' 
+	else if self.nestedPackage.size() = 0
+		 then self.nestingPackage.getFullPackage() + self.name
+		 else self.nestingPackage.getFullPackage() + self.name + '.'
+		 endif
+	endif
+	;
+
+	
+helper context MMU!Type def: importDependencies(): String =
+	'import org.springframework.data.jpa.repository.JpaRepository;\n' + 
+	'import ' + self.package.getFullPackage() + '.' + self.name + ';\n\n'
+	;
+	
+helper context MMU!Package def: path(): String =
+	self.getFullPackage().replaceAll('.', '/')
+	;
+
+helper context String def: parent(): String =
+	if self.indexOf('.') = -1 
+	then self.substring(1, self.lastIndexOf('/'))
+	else self.substring(1, self.lastIndexOf('.'))
+	endif
+	;

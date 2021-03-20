@@ -297,6 +297,44 @@
           </ownedAttribute>
         </packagedElement>
       </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_-xOIUIeKEeulJ_z9uoOk9Q" name="structure">
+        <packagedElement xmi:type="uml:Class" xmi:id="_FSwisIeLEeulJ_z9uoOk9Q" name="AbstractEntity" isAbstract="true">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_Koc1AIeLEeulJ_z9uoOk9Q" name="id" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/EcorePrimitiveTypes.library.uml#EBigInteger"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_LPTZoIeLEeulJ_z9uoOk9Q" name="creationDate" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/EcorePrimitiveTypes.library.uml#EDate"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_LmQhEIeLEeulJ_z9uoOk9Q" name="lastModifiedDate" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/EcorePrimitiveTypes.library.uml#EDate"/>
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_r3gv4IkVEeunR-dZQKPLPg" name="NotificationEmail">
+          <generalization xmi:type="uml:Generalization" xmi:id="_FLHssIkXEeunR-dZQKPLPg" general="_FSwisIeLEeulJ_z9uoOk9Q"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_ynCtgIkWEeunR-dZQKPLPg" name="subject" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_z7UY0IkWEeunR-dZQKPLPg" name="recipient" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_1FEPIIkWEeunR-dZQKPLPg" name="body" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_w2fLUIkVEeunR-dZQKPLPg" name="RefreshToken">
+          <generalization xmi:type="uml:Generalization" xmi:id="_GHXSgIkXEeunR-dZQKPLPg" general="_FSwisIeLEeulJ_z9uoOk9Q"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_-yLNoIkWEeunR-dZQKPLPg" name="token" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_y6_ZsIkVEeunR-dZQKPLPg" name="VerificationToken">
+          <generalization xmi:type="uml:Generalization" xmi:id="_HFGtIIkXEeunR-dZQKPLPg" general="_FSwisIeLEeulJ_z9uoOk9Q"/>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_I-cCwIkWEeunR-dZQKPLPg" name="token" visibility="private">
+            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#String"/>
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="_a7v84IkWEeunR-dZQKPLPg" name="user" visibility="private" type="_wNwi4IdeEeulJ_z9uoOk9Q" association="_a7jvoIkWEeunR-dZQKPLPg"/>
+        </packagedElement>
+      </packagedElement>
       <packagedElement xmi:type="uml:Package" xmi:id="_8nV2QIeAEeulJ_z9uoOk9Q" name="enums">
         <packagedElement xmi:type="uml:Enumeration" xmi:id="_ibbtkIeBEeulJ_z9uoOk9Q" name="CartStatus">
           <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_siQ-MIeCEeulJ_z9uoOk9Q" name="NEW"/>
@@ -333,25 +371,18 @@
           <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_NgYIkIeEEeulJ_z9uoOk9Q" name="NEW"/>
         </packagedElement>
       </packagedElement>
-      <packagedElement xmi:type="uml:Package" xmi:id="_-xOIUIeKEeulJ_z9uoOk9Q" name="structure">
-        <packagedElement xmi:type="uml:Class" xmi:id="_FSwisIeLEeulJ_z9uoOk9Q" name="AbstractEntity" isAbstract="true">
-          <ownedAttribute xmi:type="uml:Property" xmi:id="_Koc1AIeLEeulJ_z9uoOk9Q" name="id" visibility="private">
-            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/EcorePrimitiveTypes.library.uml#EBigInteger"/>
-          </ownedAttribute>
-          <ownedAttribute xmi:type="uml:Property" xmi:id="_LPTZoIeLEeulJ_z9uoOk9Q" name="creationDate" visibility="private">
-            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/EcorePrimitiveTypes.library.uml#EDate"/>
-          </ownedAttribute>
-          <ownedAttribute xmi:type="uml:Property" xmi:id="_LmQhEIeLEeulJ_z9uoOk9Q" name="lastModifiedDate" visibility="private">
-            <type xmi:type="uml:PrimitiveType" href="pathmap://UML_LIBRARIES/EcorePrimitiveTypes.library.uml#EDate"/>
-          </ownedAttribute>
-        </packagedElement>
-      </packagedElement>
     </packagedElement>
   </packagedElement>
   <packagedElement xmi:type="uml:Association" xmi:id="_lefh8IhdEeuXv-rffecPVw" memberEnd="_leh-MIhdEeuXv-rffecPVw _leilQIhdEeuXv-rffecPVw">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_lehXIIhdEeuXv-rffecPVw" source="org.eclipse.papyrus">
       <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_lehXIYhdEeuXv-rffecPVw" key="nature" value="UML_Nature"/>
     </eAnnotations>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_a7jvoIkWEeunR-dZQKPLPg" memberEnd="_a7v84IkWEeunR-dZQKPLPg _a701YIkWEeunR-dZQKPLPg">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_a7k9wIkWEeunR-dZQKPLPg" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_a7lk0IkWEeunR-dZQKPLPg" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_a701YIkWEeunR-dZQKPLPg" name="verificationtoken" type="_y6_ZsIkVEeunR-dZQKPLPg" association="_a7jvoIkWEeunR-dZQKPLPg"/>
   </packagedElement>
   <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_lXFpkIeFEeulJ_z9uoOk9Q">
     <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_lXG3sIeFEeulJ_z9uoOk9Q" source="http://www.eclipse.org/uml2/2.0.0/UML">

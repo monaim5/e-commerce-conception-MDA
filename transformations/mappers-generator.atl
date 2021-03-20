@@ -55,7 +55,7 @@ helper context MMU!Type def: importDependencies(): String =
 	
 helper context MMU!Type def: importModels(): String =
 	'import ' + self.package.getFullPackage() + '.' + self.name + ';\n' +
-	'import ' + self.package.getFullPackage().parent() + '.dtos.' + self.name + 'Dto;\n'
+	'import ' + self.package.getFullPackage().parent() + '.dtos.' + self.name + 'Dto;\n\n'
 	;
 
 helper context MMU!Type def: classDef(): String =
